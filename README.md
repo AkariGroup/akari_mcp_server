@@ -72,6 +72,90 @@ AKARI実機未接続の場合、joint/m5stackのWARNINGが出るが正常。
 - 動画録画にはH.264エンコードを使用。`ffmpeg`がインストールされていればMP4に自動変換、なければ`.h264`ファイルで保存
 - 録画ファイルは`/tmp/akari_captures/`に保存される
 
+## VOICEVOX音声出力（オプション）
+
+Claude Codeの応答をVOICEVOXで音声合成して読み上げる機能。hookスクリプトは `.claude/hooks/voicevox_speak.sh` に同梱されている。
+
+### 前提条件
+
+- `jq` - JSON処理
+- `curl` - HTTP通信
+- 音声再生コマンド: `paplay`(PulseAudio), `aplay`(ALSA), `ffplay`(ffmpeg), `play`(sox) のいずれか
+
+```bash
+# Ubuntu/Debianの場合
+sudo apt install jq curl alsa-utils
+```
+
+### VOICEVOX エンジンのセットアップ（Docker CPU版）
+
+```bash
+# イメージ取得
+docker pull voicevox/voicevox_engine:cpu-latest
+
+# 起動（バックグラウンド、名前付き、自動再起動あり）
+docker run -d --name voicevox --restart unless-stopped -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest
+
+# 起動確認
+curl http://127.0.0.1:50021/version
+
+# 停止する場合
+docker stop voicevox
+```
+
+NVIDIA GPU搭載の場合は `nvidia-latest` タグを使うと高速化できる:
+
+```bash
+docker run -d --name voicevox --restart unless-stopped --gpus all -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:nvidia-latest
+```
+
+### Claude Code hookの有効化
+
+`.claude/settings.local.json` を作成して hook を登録する:
+
+```bash
+cat > .claude/settings.local.json << 'EOF'
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/voicevox_speak.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+EOF
+```
+
+Claude Codeを再起動すると、応答のたびにVOICEVOXで読み上げが行われる。
+
+### カスタマイズ（環境変数）
+
+| 環境変数 | デフォルト | 説明 |
+|----------|-----------|------|
+| `VOICEVOX_HOST` | `http://127.0.0.1:50021` | VOICEVOXエンジンのURL |
+| `VOICEVOX_SPEAKER` | `3` (ずんだもん・ノーマル) | 話者ID |
+| `VOICEVOX_MAX_LENGTH` | `200` | 読み上げ最大文字数 |
+| `VOICEVOX_SPEED` | `1.2` | 話速（1.0=標準） |
+
+話者IDの一覧は `curl http://127.0.0.1:50021/speakers | jq` で確認できる。
+
+主な話者ID例:
+
+| ID | 話者 |
+|----|------|
+| 2 | 四国めたん（ノーマル） |
+| 3 | ずんだもん（ノーマル） |
+| 8 | 春日部つむぎ |
+| 13 | 青山龍星 |
+| 46 | 小夜/SAYO |
+
 ## 依存関係
 
 - `mcp[cli]` - MCP Python SDK
