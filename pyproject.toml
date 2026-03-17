@@ -5,6 +5,7 @@ description = "MCP Server for AKARI robot control"
 requires-python = ">=3.10"
 dependencies = [
     "mcp[cli]>=1.0.0",
+    "akari-client[grpc]>=0.4.0",
     "depthai==2.30.0.0",
     "opencv-python",
 ]
@@ -24,7 +25,6 @@ akari-client = { path = "/home/kaz/akari_software/sdk/akari_client", editable = 
 
 [dependency-groups]
 dev = [
-    "akari-client[grpc]",
     "ruff",
 ]
 

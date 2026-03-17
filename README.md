@@ -23,14 +23,29 @@ AKARIロボットをClaude Codeから操作するためのMCP (Model Context Pro
 
 ## セットアップ
 
-### 1. 依存関係インストール
+### 方法A: uvxでGitHubから直接インストール（推奨）
+
+`~/.claude.json` の `mcpServers` に以下を追加:
+
+```json
+"akari": {
+  "type": "stdio",
+  "command": "uvx",
+  "args": [
+    "--from",
+    "git+https://github.com/AkariGroup/akari_mcp_server",
+    "akari-mcp-server"
+  ]
+}
+```
+
+### 方法B: ローカルリポジトリから実行
 
 ```bash
+git clone https://github.com/AkariGroup/akari_mcp_server.git
 cd akari_mcp_server
 uv sync
 ```
-
-### 2. Claude Codeに登録
 
 `~/.claude.json` の `mcpServers` に以下を追加:
 
@@ -47,7 +62,7 @@ uv sync
 }
 ```
 
-### 3. Claude Codeを再起動
+### Claude Codeを再起動
 
 MCPサーバーはClaude Code起動時に読み込まれるため、設定変更後は再起動が必要。
 
@@ -74,6 +89,6 @@ AKARI実機未接続の場合、joint/m5stackのWARNINGが出るが正常。
 ## 依存関係
 
 - `mcp[cli]` - MCP Python SDK
-- `akari-client` - AKARI Python SDK (ローカルeditable)
+- `akari-client[grpc]` - AKARI Python SDK
 - `depthai` - OAK-Dカメラ制御
 - `opencv-python` - 画像処理

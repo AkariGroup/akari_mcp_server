@@ -54,6 +54,7 @@ name = "akari-mcp-server"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "akari-client", extra = ["grpc"] },
     { name = "depthai" },
     { name = "mcp", extra = ["cli"] },
     { name = "opencv-python" },
@@ -61,22 +62,19 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "akari-client", extra = ["grpc"] },
     { name = "ruff" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "akari-client", extras = ["grpc"], editable = "/home/kaz/akari_software/sdk/akari_client" },
     { name = "depthai", specifier = "==2.30.0.0" },
     { name = "mcp", extras = ["cli"], specifier = ">=1.0.0" },
     { name = "opencv-python" },
 ]
 
 [package.metadata.requires-dev]
-dev = [
-    { name = "akari-client", extras = ["grpc"], editable = "/home/kaz/akari_software/sdk/akari_client" },
-    { name = "ruff" },
-]
+dev = [{ name = "ruff" }]
 
 [[package]]
 name = "akari-proto"
