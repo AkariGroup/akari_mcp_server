@@ -26,7 +26,7 @@ AKARIロボットをClaude Codeから操作するためのMCP (Model Context Pro
 ### 1. 依存関係インストール
 
 ```bash
-cd /home/kaz/akari_mcp_server
+cd akari_mcp_server
 uv sync
 ```
 
@@ -40,7 +40,7 @@ uv sync
   "command": "uv",
   "args": [
     "--directory",
-    "/home/kaz/akari_mcp_server",
+    "/path/to/akari_mcp_server",
     "run",
     "akari-mcp-server"
   ]
