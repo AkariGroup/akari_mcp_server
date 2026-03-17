@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from mcp.server.fastmcp import Context
 
-from akari_mcp_server.helpers import get_akari
+from akari_mcp_server.helpers import call_with_retry
 from akari_mcp_server.server import mcp
 
 
@@ -39,19 +39,22 @@ def display_text(
     try:
         from akari_client.color import Color
 
-        akari = get_akari(ctx)
         text_color = Color(red=text_color_r, green=text_color_g, blue=text_color_b)
         back_color = Color(red=back_color_r, green=back_color_g, blue=back_color_b)
-        akari.m5stack.set_display_text(
-            text,
-            pos_x=pos_x,
-            pos_y=pos_y,
-            size=size,
-            text_color=text_color,
-            back_color=back_color,
-            refresh=refresh,
-        )
-        return f"Displayed text: '{text}'"
+
+        def _do(akari):
+            akari.m5stack.set_display_text(
+                text,
+                pos_x=pos_x,
+                pos_y=pos_y,
+                size=size,
+                text_color=text_color,
+                back_color=back_color,
+                refresh=refresh,
+            )
+            return f"Displayed text: '{text}'"
+
+        return call_with_retry(ctx, _do)
     except Exception as e:
         return f"Error: {e}"
 
@@ -73,8 +76,12 @@ def display_color(
     try:
         from akari_client.color import Color
 
-        akari = get_akari(ctx)
-        akari.m5stack.set_display_color(Color(red=r, green=g, blue=b))
-        return f"Display color set to: r={r}, g={g}, b={b}"
+        color = Color(red=r, green=g, blue=b)
+
+        def _do(akari):
+            akari.m5stack.set_display_color(color)
+            return f"Display color set to: r={r}, g={g}, b={b}"
+
+        return call_with_retry(ctx, _do)
     except Exception as e:
         return f"Error: {e}"

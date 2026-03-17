@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from mcp.server.fastmcp import Context
 
-from akari_mcp_server.helpers import get_akari
+from akari_mcp_server.helpers import call_with_retry
 from akari_mcp_server.server import mcp
 
 
@@ -15,9 +15,12 @@ def gpio_set_dout(ctx: Context, pin_id: int, value: bool) -> str:
         value: 出力値(TrueでHi 3.3V、FalseでLo 0V)
     """
     try:
-        akari = get_akari(ctx)
-        akari.m5stack.set_dout(pin_id, value)
-        return f"dout{pin_id} set to {value}"
+
+        def _do(akari):
+            akari.m5stack.set_dout(pin_id, value)
+            return f"dout{pin_id} set to {value}"
+
+        return call_with_retry(ctx, _do)
     except Exception as e:
         return f"Error: {e}"
 
@@ -31,9 +34,12 @@ def gpio_set_pwmout(ctx: Context, pin_id: int, value: int) -> str:
         value: PWM値(0-255、0で0V、255で3.3V)
     """
     try:
-        akari = get_akari(ctx)
-        akari.m5stack.set_pwmout(pin_id, value)
-        return f"pwmout{pin_id} set to {value}"
+
+        def _do(akari):
+            akari.m5stack.set_pwmout(pin_id, value)
+            return f"pwmout{pin_id} set to {value}"
+
+        return call_with_retry(ctx, _do)
     except Exception as e:
         return f"Error: {e}"
 
@@ -53,9 +59,12 @@ def gpio_set_allout(
         pwmout0: pwmout0のPWM値(0-255)
     """
     try:
-        akari = get_akari(ctx)
-        akari.m5stack.set_allout(dout0=dout0, dout1=dout1, pwmout0=pwmout0)
-        return f"All outputs set: dout0={dout0}, dout1={dout1}, pwmout0={pwmout0}"
+
+        def _do(akari):
+            akari.m5stack.set_allout(dout0=dout0, dout1=dout1, pwmout0=pwmout0)
+            return f"All outputs set: dout0={dout0}, dout1={dout1}, pwmout0={pwmout0}"
+
+        return call_with_retry(ctx, _do)
     except Exception as e:
         return f"Error: {e}"
 
@@ -64,8 +73,11 @@ def gpio_set_allout(
 def gpio_reset(ctx: Context) -> str:
     """全GPIO出力を初期値にリセットする(dout0=False, dout1=False, pwmout0=0)。"""
     try:
-        akari = get_akari(ctx)
-        akari.m5stack.reset_allout()
-        return "All GPIO outputs reset to defaults"
+
+        def _do(akari):
+            akari.m5stack.reset_allout()
+            return "All GPIO outputs reset to defaults"
+
+        return call_with_retry(ctx, _do)
     except Exception as e:
         return f"Error: {e}"

@@ -8,13 +8,13 @@ from mcp.server.fastmcp import FastMCP
 
 @asynccontextmanager
 async def lifespan(server: FastMCP) -> AsyncIterator[dict]:
-    from akari_client import AkariClient
+    from akari_mcp_server.helpers import AkariConnectionManager
 
-    akari = AkariClient()
+    manager = AkariConnectionManager()
     try:
-        yield {"akari": akari}
+        yield {"manager": manager}
     finally:
-        akari.close()
+        manager.close()
 
 
 mcp = FastMCP("akari", lifespan=lifespan)
