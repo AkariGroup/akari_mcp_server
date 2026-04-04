@@ -1,5 +1,7 @@
 # AKARI MCP Server
 
+![AKARI MCP Server](img/akari_mcp.png)
+
 AKARIロボットをClaude Codeから操作するためのMCP (Model Context Protocol) サーバー。
 
 ## 機能
